@@ -1,13 +1,15 @@
 package com.example.moneymarketshoprite
 
 import com.example.moneymarketshoprite.abstractions.Account
+import com.example.moneymarketshoprite.abstractions.AccountRepository
 import com.example.moneymarketshoprite.models.DepositCommand
 import com.example.moneymarketshoprite.models.TransactionReportResponse
 import com.example.moneymarketshoprite.models.TransferCommand
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
-class AccountService : Account {
+class AccountService(@Autowired private val accountRepository: AccountRepository) : Account {
 
     override fun handleDeposit(customerDepositCommand: DepositCommand){
 
@@ -49,7 +51,7 @@ class AccountService : Account {
 
     }
 
-    override fun handleGenerateReport() : List<TransactionReportResponse>{
+    override fun handleGenerateTransactionReport() : List<TransactionReportResponse>{
         //Get user token that will have already been authorised and exchanged, hard coded here
         val userToken = "xxxx"
 
