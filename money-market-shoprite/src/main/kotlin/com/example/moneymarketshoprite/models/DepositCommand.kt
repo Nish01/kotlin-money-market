@@ -1,4 +1,4 @@
-package com.example.moneymarketshoprite
+package com.example.moneymarketshoprite.models
 
 class DepositCommand(val depositAmount: Double, val currency: String)
 

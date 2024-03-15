@@ -1,5 +1,9 @@
 package com.example.moneymarketshoprite
 
+import com.example.moneymarketshoprite.abstractions.Account
+import com.example.moneymarketshoprite.models.DepositCommand
+import com.example.moneymarketshoprite.models.TransactionReportResponse
+import com.example.moneymarketshoprite.models.TransferCommand
 import org.springframework.stereotype.Service
 
 @Service
@@ -7,7 +11,7 @@ class AccountService : Account {
 
     override fun handleDeposit(customerDepositCommand: DepositCommand){
 
-        //Get user JWT token that will have already been authorised and exchanged, hard coded here
+        //Get user token that will have already been authorised and exchanged, hard coded here
         val userToken = "xxxx"
 
         //get user account details using userToken
@@ -20,12 +24,13 @@ class AccountService : Account {
 
         //Handle in transaction
         //Db call to insert deposit transaction
+        //Get last record to update balance
         //Logging of deposit amount - account number partially stored in logs
 
     }
 
     override fun handleTransfer(customerTransferCommand: TransferCommand){
-        //Get user JWT token that will have already been authorised and exchanged, hard coded here
+        //Get user token that will have already been authorised and exchanged, hard coded here
         val userToken = "xxxx"
 
         //Get user account details using userToken
@@ -37,6 +42,7 @@ class AccountService : Account {
         //Check if first account balance has sufficient funds before being allowed to transfer
 
         //Do transfer Service to handle it, add debit transaction record and add credit transaction record - db call, handle it all as a transaction
+        //Get last record to update balance for both transactions
 
 
 
@@ -44,7 +50,10 @@ class AccountService : Account {
     }
 
     override fun handleGenerateReport() : List<TransactionReportResponse>{
-        //Get list of transactions. Default number of transactions, with Optional parameters: x number of transactions or min date for scalability
+        //Get user token that will have already been authorised and exchanged, hard coded here
+        val userToken = "xxxx"
+
+        //Get list of transactions for user account. Default number of transactions, with Optional parameters: x number of transactions or min date for scalability
         //Logging - Initiating get report data
 
        return listOf(

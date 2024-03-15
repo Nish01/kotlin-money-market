@@ -1,5 +1,8 @@
 package com.example.moneymarketshoprite
 
+import com.example.moneymarketshoprite.models.DepositCommand
+import com.example.moneymarketshoprite.models.TransactionReportResponse
+import com.example.moneymarketshoprite.models.TransferCommand
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.ResponseEntity.status
