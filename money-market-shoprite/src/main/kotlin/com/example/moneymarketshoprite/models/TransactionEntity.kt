@@ -3,6 +3,8 @@ package com.example.moneymarketshoprite.models
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import net.sf.jsqlparser.expression.DateTimeLiteralExpression.DateTime
 import org.springframework.data.annotation.Id
 
@@ -15,4 +17,8 @@ data class TransactionEntity(
         var amount: Double,
         var description: String,
         var currency: String,
-        var balance: Double)
+        var balance: Double,
+
+        @ManyToOne
+        @JoinColumn(name = "transaction_id")
+        var account: AccountEntity? = null)
