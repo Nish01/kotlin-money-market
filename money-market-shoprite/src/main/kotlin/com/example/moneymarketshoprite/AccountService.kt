@@ -28,7 +28,6 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
         //Implementation in a separate service, this also implies multiple accounts - perhaps out of scope.
         //Logging if conversion needed
 
-
         //Handle in transaction
         //Db call to insert deposit transaction
 
@@ -42,9 +41,11 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
         val userToken = "xxxx"
 
         //Get user account details using userToken
-
         val accountId = 5L
-        var accountDetails = accountRepository.findById(accountId).orElse(null) //filter to limit transaction records
+        var userAccountDetails = accountRepository.findById(accountId).orElse(null) //filter to limit transaction records
+
+        var depositAccountDetails = accountRepository.findByAccountNumber(customerTransferCommand.destinationAccountNumber) //filter to limit transaction records
+
 
         //Validate transfer from account, check if account is in customerTransferCommand.currency otherwise convert amount
         //Implementation in a separate service, this also implies multiple accounts - perhaps out of scope.
@@ -69,9 +70,9 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
             // Perform long-running task to generate transaction report
 
             val accountId = 5L
-            var accountWithTransactions = accountRepository.findById(accountId).orElse(null) //filter to limit records
+            var accountWithTransactions = accountRepository.findById(accountId).orElse(null) //need to add filter to limit records
 
-            //Method to map account Transactions to Transaction Report Response to return to controller
+            //Method to map account Transactions to Transaction Report Response object to return to controller - return object hardcoded here
 
             listOf(
                     TransactionReportResponse(LocalDateTime.of(2024, 2, 1, 10, 1), 50.00, "ZAR", 150.00),
