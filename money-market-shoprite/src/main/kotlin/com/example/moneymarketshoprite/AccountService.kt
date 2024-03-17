@@ -72,7 +72,7 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
             val accountId = 5L
             var accountWithTransactions = accountRepository.findById(accountId).orElse(null) //need to add filter to limit records
 
-            //Method to map account Transactions to Transaction Report Response object to return to controller - return object hardcoded here
+            //Implement a Domain Method to map account Transactions to Transaction Report Response object to return to controller - return object hardcoded here
 
             listOf(
                     TransactionReportResponse(LocalDateTime.of(2024, 2, 1, 10, 1), 50.00, "ZAR", 150.00),

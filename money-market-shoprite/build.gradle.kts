@@ -29,6 +29,10 @@ dependencies {
 	runtimeOnly("com.h2database:h2")
 	runtimeOnly("org.postgresql:postgresql")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+	testImplementation("org.jetbrains.kotlin:kotlin-test")
+	testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
+	testImplementation("org.junit.jupiter:junit-jupiter:5.8.1")
+	testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
 }
 
 tasks.withType<KotlinCompile> {
@@ -37,6 +41,7 @@ tasks.withType<KotlinCompile> {
 		jvmTarget = "17"
 	}
 }
+
 
 tasks.withType<Test> {
 	useJUnitPlatform()
