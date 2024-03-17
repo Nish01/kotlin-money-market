@@ -15,7 +15,6 @@ import java.util.*
 
 @RestController
 class AccountController(@Autowired val service: AccountService) {
-
     @PutMapping()
     fun deposit(@RequestBody customerDepositCommand: DepositCommand): ResponseEntity<Unit> {
         //Check user validation - can deposit
@@ -33,9 +32,10 @@ class AccountController(@Autowired val service: AccountService) {
     }
 
     @GetMapping("/transactions")
-    fun generateTransactionReport(): List<TransactionReportResponse> {
+    suspend fun generateTransactionReport(): ResponseEntity<List<TransactionReportResponse>> {
         var transactionList = service.handleGenerateTransactionReport()
 
-        return transactionList
+        return if (transactionList != null) ResponseEntity(transactionList, HttpStatus.OK)
+        else ResponseEntity(HttpStatus.NOT_FOUND)
     }
 }
