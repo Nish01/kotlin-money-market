@@ -1,24 +1,31 @@
 package com.example.moneymarketshoprite.models
 
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
-import jakarta.persistence.JoinColumn
-import jakarta.persistence.ManyToOne
-import net.sf.jsqlparser.expression.DateTimeLiteralExpression.DateTime
 import org.springframework.data.annotation.Id
+import java.math.BigDecimal
+import java.time.LocalDateTime
 
 @Entity(name = "transaction")
 data class TransactionEntity(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var id: Long?,
-        var date: DateTime,
-        var amount: Double,
+        @Column(name = "id", nullable = false, insertable = false, updatable = false)
+        var id: Long? = null,
+        @Column(name = "account_id", nullable = false)
+        var accountId: Long?,
+        @Column(name = "date_time", nullable = false)
+        var dateTime: LocalDateTime,
+        @Column(name = "amount", nullable = false)
+        var amount: BigDecimal,
+        @Column(name = "description", nullable = true)
         var description: String,
-        var currency: String,
-        var balance: Double,
+        @Column(name = "currency_code", nullable = false)
+        var currencyCode: String,
 
-        @ManyToOne
-        @JoinColumn(name = "transaction_id")
-        var account: AccountEntity? = null)
+//        @ManyToOne
+//        @JoinColumn(name = "transaction_id")
+//        var account: AccountEntity? = null
+)

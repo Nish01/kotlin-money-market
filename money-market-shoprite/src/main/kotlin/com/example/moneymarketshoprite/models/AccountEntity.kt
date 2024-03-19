@@ -1,22 +1,28 @@
 package com.example.moneymarketshoprite.models
 
-import jakarta.persistence.CascadeType
+import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
-import jakarta.persistence.OneToMany
 import org.springframework.data.annotation.Id
+import java.math.BigDecimal
 
 @Entity(name = "account")
 data class AccountEntity(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        var id: Long?,
+        @Column(name = "id", nullable = false, insertable = false, updatable = false)
+        var id: Long,
+        @Column(name = "account_number", nullable = false)
         var accountNumber: Long,
-        var name: String,
-        var token: String,
-        var currency: String,
+        @Column(name = "currency_code", nullable = false)
+        var currencyCode: String,
+        @Column(name = "balance", nullable = false)
+        var balance: BigDecimal,
 
-        @OneToMany(cascade = [CascadeType.ALL], mappedBy = "transaction")
-        var transactions: List<TransactionEntity>? = null
+        // @Column(name = "", nullable = false)
+        // var token: String,
+
+//        @OneToMany(cascade = [CascadeType.ALL], mappedBy = "transaction")
+//        var transactions: List<TransactionEntity>? = null
 )

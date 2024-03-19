@@ -1,6 +1,8 @@
 package com.example.moneymarketshoprite.models
 
-class TransferCommand(val depositAmount: Double, val currency: String,
+import java.math.BigDecimal
+
+class TransferCommand(val transferAmount: BigDecimal, val currency: String,
                       val destinationAccountNumber: Long)
 
 //Currency to be Value Object
