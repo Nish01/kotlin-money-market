@@ -1,8 +1,11 @@
 package com.example.moneymarketshoprite.services
 
+import com.example.moneymarketshoprite.enums.TransactionDescription
+import com.example.moneymarketshoprite.models.AccountEntity
 import com.example.moneymarketshoprite.services.abstractions.Account
 import com.example.moneymarketshoprite.repositories.AccountRepository
 import com.example.moneymarketshoprite.models.DepositCommand
+import com.example.moneymarketshoprite.models.TransactionEntity
 import com.example.moneymarketshoprite.models.TransactionReportResponse
 import com.example.moneymarketshoprite.models.TransferCommand
 import com.example.moneymarketshoprite.repositories.TransactionRepository
@@ -17,55 +20,61 @@ import java.time.LocalDateTime
 class AccountService(@Autowired private val accountRepository: AccountRepository, private val transactionRepository: TransactionRepository) : Account {
 
     private val logger = LoggerFactory.getLogger(AccountService::class.java)
-
-    override fun handleDeposit(customerDepositCommand: DepositCommand){
-        //Get user token that will have already been authorised and exchanged, hard coded here
-        //Need to think a bit deeper on using the token in Db to connect to the user
-        val userToken = "xxxx"
-
-        //get user account details using userToken
-        val accountId = 5L
-        var accountDetails = accountRepository.findById(accountId).orElse(null) //filter to limit transaction records
-
-        //Validate account, check account's currency
-        //check if account is in customerDepositCommand.currency otherwise convert amount
-        //Implementation in a separate service, this also implies multiple accounts - perhaps out of scope.
-        logger.info("Conversion from currency  to  required")
+    override fun handleDeposit(customerDepositCommand: DepositCommand, accountId: Long){
+        var accountDetails = accountRepository.findById(accountId).orElse(null)
+        val isAccountCurrencyValid = validateAccountCurrency(accountDetails, customerDepositCommand.currency)
 
         //Handle in transaction
-        //Db call to insert deposit transaction
+        accountDetails.balance.plus(customerDepositCommand.depositAmount)
+        logger.info("Account balance credited with deposit amount ${customerDepositCommand.depositAmount}")
+        accountRepository.save(accountDetails)
 
-        //Get last record to update balance
-        //Logging of deposit amount - account number partially stored in logs
+        val transactionEntity = TransactionEntity(
+                accountId = accountId,
+                amount = customerDepositCommand.depositAmount,
+                currencyCode = customerDepositCommand.currency,
+                dateTime = LocalDateTime.now(),
+                description = TransactionDescription.DEPOSIT.description
+        )
+        logger.info("Deposit transaction with deposit amount ${customerDepositCommand.depositAmount}")
+        transactionRepository.save(transactionEntity)
     }
 
-    override fun handleTransfer(customerTransferCommand: TransferCommand){
-        //Get user token that will have already been authorised and exchanged, hard coded here
-        //Need to think a bit deeper on using the token in Db to connect to the user
-        val userToken = "xxxx"
+    override fun handleTransfer(customerTransferCommand: TransferCommand, accountId: Long){
 
-        //Get user account details using userToken
-        val accountId = 5L
-        var userAccountDetails = accountRepository.findById(accountId).orElse(null) //filter to limit transaction records
+        var userAccountDetails = accountRepository.findById(accountId).orElse(null)
 
-        var depositAccountDetails = accountRepository.findByAccountNumber(customerTransferCommand.destinationAccountNumber) //filter to limit transaction records
-
+        var depositAccountDetails = accountRepository.findByAccountNumber(customerTransferCommand.destinationAccountNumber)
 
         //Validate transfer from account, check if account is in customerTransferCommand.currency otherwise convert amount
-        //Implementation in a separate service, this also implies multiple accounts - perhaps out of scope.
-        logger.info("Conversion from currency  to  required")
         //Likewise check if destination account is in customerTransferCommand.currency otherwise convert amount
+        val isAccountCurrencyValid = validateAccountCurrency(userAccountDetails, customerTransferCommand.currency)
+        val isDepositAccountCurrencyValid = validateAccountCurrency(depositAccountDetails, customerTransferCommand.currency)
 
         //Check if first account balance has sufficient funds before being allowed to transfer
 
-        //Do transfer, add debit transaction record and add credit transaction record - db call, handle it all as a transaction
-        //Get last record to update balance for both transactions
+        //Do transfer, add debit transaction record and add credit transaction record
+        //Handle in transaction
+
+//        accountDetails.balance.plus(customerDepositCommand.depositAmount)
+//        logger.info("Account balance credited with deposit amount ${customerDepositCommand.depositAmount}")
+//        accountRepository.save(accountDetails)
+//
+//        val transactionEntity = TransactionEntity(
+//                accountId = accountId,
+//                amount = customerDepositCommand.depositAmount,
+//                currencyCode = customerDepositCommand.currency,
+//                dateTime = LocalDateTime.now(),
+//                description = TransactionDescription.DEPOSIT.description
+//        )
+//        logger.info("Deposit transaction with deposit amount ${customerDepositCommand.depositAmount}")
+//        transactionRepository.save(transactionEntity)
+
+
     }
 
-    override suspend fun handleGenerateTransactionReport() : List<TransactionReportResponse> {
-    //Get user token that will have already been authorised and exchanged, hard coded here
-    //Need to think a bit deeper on using the token in Db to connect to the user
-    val userToken = "xxxx"
+    override suspend fun handleGenerateTransactionReport(accountId: Long) : List<TransactionReportResponse> {
+
 
     //Get list of transactions for user account. Default number of transactions, with Optional parameters: x number of transactions or min date for scalability
 
@@ -86,6 +95,15 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
                     TransactionReportResponse(LocalDateTime.of(2024, 2, 1, 10, 38), 200.00, "ZAR", 200.00),
             )
         }
+    }
+
+    fun validateAccountCurrency(userAccountDetails: AccountEntity, currencyCodeToCheck: String) : Boolean{
+
+        //Validate account, check account's currency
+        //check if account is in customerDepositCommand.currency otherwise need to convert amount
+        //Conversion implementation in a separate service, Conversion rates, this also implies multiple accounts - perhaps out of scope.
+        //logger.info("Conversion from currency ZAR to USD required")
+        return true
     }
 
 }

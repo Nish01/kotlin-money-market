@@ -4,20 +4,20 @@ import jakarta.persistence.Column
 import jakarta.persistence.Entity
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
-import net.sf.jsqlparser.expression.DateTimeLiteralExpression.DateTime
 import org.springframework.data.annotation.Id
 import java.math.BigDecimal
+import java.time.LocalDateTime
 
 @Entity(name = "transaction")
 data class TransactionEntity(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "id", nullable = false, insertable = false, updatable = false)
-        var id: Long?,
+        var id: Long? = null,
         @Column(name = "account_id", nullable = false)
-        var AccountId: Long?,
+        var accountId: Long?,
         @Column(name = "date_time", nullable = false)
-        var dateTime: DateTime,
+        var dateTime: LocalDateTime,
         @Column(name = "amount", nullable = false)
         var amount: BigDecimal,
         @Column(name = "description", nullable = true)

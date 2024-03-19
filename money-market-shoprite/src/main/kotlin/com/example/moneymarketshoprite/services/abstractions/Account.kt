@@ -5,7 +5,7 @@ import com.example.moneymarketshoprite.models.TransactionReportResponse
 import com.example.moneymarketshoprite.models.TransferCommand
 
 interface Account {
-    fun handleDeposit(customerDepositCommand: DepositCommand)
-    fun handleTransfer(customerTransferCommand: TransferCommand)
-    suspend fun handleGenerateTransactionReport(): List<TransactionReportResponse>
+    fun handleDeposit(customerDepositCommand: DepositCommand, accountId: Long)
+    fun handleTransfer(customerTransferCommand: TransferCommand, accountId: Long)
+    suspend fun handleGenerateTransactionReport(accountId: Long): List<TransactionReportResponse>
 }
