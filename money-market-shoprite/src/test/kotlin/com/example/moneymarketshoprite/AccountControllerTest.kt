@@ -29,7 +29,7 @@ class AccountControllerTest {
         //Mock service behavior
         doNothing().`when`(service).handleDeposit(depositCommand)
         val controller = AccountController(service)
-        // Call the deposit method and capture the response
+        //Call the deposit method and capture the response
         val response = controller.deposit(depositCommand)
 
         //Assert that the response status is OK and service method is called once
@@ -50,9 +50,9 @@ class AccountControllerTest {
         // Call the deposit method and capture the response
         val response = controller.generateTransactionReport()
 
-        // Assert that the response status is OK
+        //Assert that the response status is OK
         assertEquals(HttpStatus.OK, response.statusCode)
-        // Assert that the response body is a non-empty list service method is called once
+        //Assert that the response body is a non-empty list service method is called once
         assertThat(response.body).isNotEmpty()
         assertEquals(getTransactionList().size, response.body?.size)
         verify(service, times(1)).handleGenerateTransactionReport();
