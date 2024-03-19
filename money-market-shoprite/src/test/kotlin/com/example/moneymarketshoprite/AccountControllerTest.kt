@@ -6,7 +6,6 @@ import com.example.moneymarketshoprite.models.TransactionReportResponse
 import com.example.moneymarketshoprite.models.TransactionResponse
 import com.example.moneymarketshoprite.services.AccountService
 import kotlinx.coroutines.runBlocking
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.InjectMocks

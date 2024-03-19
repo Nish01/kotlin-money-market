@@ -19,10 +19,10 @@ class AccountController(@Autowired val service: AccountService) {
     @PostMapping("/deposit")
     fun deposit(@RequestBody customerDepositCommand: DepositCommand): ResponseEntity<Unit> {
         //Check user validation - can deposit
-        //Get user token that will have already been authorised and exchanged, hard coded here
-        //Need to think a bit deeper on using the token in Db to connect to the user
-        val userToken = "xxxx"
 
+        //Get user token that will have already been authorised and exchanged, hard coded here
+        //Need to think more on using the token in Db to connect to the user
+        val userToken = "xxxx"
         //Get user account details using userToken
         val accountId = 555L
 
@@ -36,7 +36,7 @@ class AccountController(@Autowired val service: AccountService) {
         //Check user validation - can transfer
 
         //Get user token that will have already been authorised and exchanged, hard coded here
-        //Need to think a bit deeper on using the token in Db to connect to the user
+        //Need to think more on using the token in Db to connect to the user
         val userToken = "xxxx"
         //get user account details using userToken
         val accountId = 555L
@@ -50,7 +50,7 @@ class AccountController(@Autowired val service: AccountService) {
         //Check user validation - can generate transaction report
 
         //Get user token that will have already been authorised and exchanged, hard coded here
-        //Need to think a bit deeper on using the token in Db to connect to the user
+        //Need to think more on using the token in Db to connect to the user
         val userToken = "xxxx"
         val accountId = 555L
 
