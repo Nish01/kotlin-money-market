@@ -1,5 +1,6 @@
-package com.example.moneymarketshoprite
+package com.example.moneymarketshoprite.controllers
 
+import com.example.moneymarketshoprite.services.AccountService
 import com.example.moneymarketshoprite.models.DepositCommand
 import com.example.moneymarketshoprite.models.TransactionReportResponse
 import com.example.moneymarketshoprite.models.TransferCommand
@@ -15,9 +16,11 @@ import java.util.*
 
 @RestController
 class AccountController(@Autowired val service: AccountService) {
+
     @PutMapping()
     fun deposit(@RequestBody customerDepositCommand: DepositCommand): ResponseEntity<Unit> {
         //Check user validation - can deposit
+        //Switch to Mediator pattern
 
         service.handleDeposit(customerDepositCommand)
         return status(HttpStatus.OK).build()
