@@ -23,7 +23,7 @@ class AccountController(@Autowired val service: AccountService) {
         //Switch to Mediator pattern
 
         service.handleDeposit(customerDepositCommand)
-        return status(HttpStatus.OK).build()
+        return ResponseEntity.ok().build()
     }
 
     @PutMapping()
@@ -31,14 +31,16 @@ class AccountController(@Autowired val service: AccountService) {
         //Check user validation - can transfer
 
         service.handleTransfer(customerTransferCommand)
-        return status(HttpStatus.NO_CONTENT).build()
+        return ResponseEntity.ok().build()
     }
 
     @GetMapping("/transactions")
     suspend fun generateTransactionReport(): ResponseEntity<List<TransactionReportResponse>> {
+        //Check user validation - can generate transaction report
+
         var transactionList = service.handleGenerateTransactionReport()
 
-        return if (transactionList != null) ResponseEntity(transactionList, HttpStatus.OK)
+        return if (transactionList != null) ResponseEntity.ok(transactionList)
         else ResponseEntity(HttpStatus.NOT_FOUND)
     }
 }
