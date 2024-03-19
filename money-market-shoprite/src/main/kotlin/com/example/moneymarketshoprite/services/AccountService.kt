@@ -1,6 +1,7 @@
 package com.example.moneymarketshoprite.services
 
 import com.example.moneymarketshoprite.enums.TransactionDescription
+import com.example.moneymarketshoprite.enums.TransactionLogMessages
 import com.example.moneymarketshoprite.models.AccountEntity
 import com.example.moneymarketshoprite.services.abstractions.Account
 import com.example.moneymarketshoprite.repositories.AccountRepository
@@ -19,7 +20,7 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @Service
-class AccountService(@Autowired private val accountRepository: AccountRepository, private val transactionRepository: TransactionRepository) : Account {
+class AccountService(@Autowired private val accountRepository: AccountRepository, @Autowired private val transactionRepository: TransactionRepository) : Account {
 
     private val logger = LoggerFactory.getLogger(AccountService::class.java)
 
@@ -29,17 +30,11 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
         val isAccountCurrencyValid = validateAccountCurrency(accountDetails, customerDepositCommand.currency)
 
         //Handle in transaction
-        creditAccountBalance(accountDetails, customerDepositCommand.depositAmount, true)
+        creditAccountBalance(accountDetails, customerDepositCommand.depositAmount)
 
-        val transactionEntity = TransactionEntity(
-                accountId = accountId,
-                amount = customerDepositCommand.depositAmount,
-                currencyCode = customerDepositCommand.currency,
-                dateTime = LocalDateTime.now(),
-                description = TransactionDescription.DEPOSIT.description
-        )
-        logger.info("Deposit transaction with deposit amount ${customerDepositCommand.depositAmount}")
-        transactionRepository.save(transactionEntity)
+        createTransaction(accountId, customerDepositCommand.depositAmount, customerDepositCommand.currency,
+                TransactionDescription.DEPOSIT.description,
+                "${TransactionLogMessages.DEPOSIT.message} ${customerDepositCommand.currency} ${customerDepositCommand.depositAmount}")
     }
 
     @Transactional
@@ -57,30 +52,20 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
         }
 
         //Do transfer, add debit transaction record and add credit transaction record
-        //Handle in transaction
         debitAccountBalance(userAccountDetails, customerTransferCommand.transferAmount, false)
         creditAccountBalance(depositAccountDetails, customerTransferCommand.transferAmount, false)
 
+        //Handle in transaction
         accountRepository.saveAll(listOf(userAccountDetails, depositAccountDetails))
-        
-        val transferFromTransactionEntity = TransactionEntity(
-                accountId = accountId,
-                amount = -customerTransferCommand.transferAmount,
-                currencyCode = customerTransferCommand.currency,
-                dateTime = LocalDateTime.now(),
-                description = TransactionDescription.TRANSFER.description
-        )
-        logger.info("Transfer transaction from account, with transfer amount ${customerTransferCommand.transferAmount}")
-        transactionRepository.save(transferFromTransactionEntity)
 
-        val transferToTransactionEntity = TransactionEntity(
-                accountId = depositAccountDetails.id,
-                amount = customerTransferCommand.transferAmount,
-                currencyCode = customerTransferCommand.currency,
-                dateTime = LocalDateTime.now(),
-                description = TransactionDescription.TRANSFER.description
-        )
-        logger.info("Transfer transaction to account, with transfer amount ${customerTransferCommand.transferAmount}")
+        val transferFromTransactionEntity = createTransaction(accountId, -customerTransferCommand.transferAmount,
+                customerTransferCommand.currency, TransactionDescription.TRANSFER.description,
+                "${TransactionLogMessages.TRANSFERFROM.message} ${customerTransferCommand.currency} ${customerTransferCommand.transferAmount}", false)
+
+        val transferToTransactionEntity = createTransaction(depositAccountDetails.id, customerTransferCommand.transferAmount,
+                customerTransferCommand.currency, TransactionDescription.TRANSFER.description,
+                "${TransactionLogMessages.TRANSFERTO.message} ${customerTransferCommand.currency} ${customerTransferCommand.transferAmount}", false)
+
         transactionRepository.saveAll(listOf(transferFromTransactionEntity, transferToTransactionEntity))
     }
 
@@ -109,7 +94,6 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
     }
 
     private fun validateAccountCurrency(userAccountDetails: AccountEntity, currencyCodeToCheck: String) : Boolean{
-
         //Validate account, check account's currency
         //check if account is in customerDepositCommand.currency otherwise need to convert amount
         //Conversion implementation in a separate service, Conversion rates, this also implies multiple accounts - perhaps out of scope.
@@ -117,23 +101,40 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
         return true
     }
 
-    private fun creditAccountBalance(userAccountDetails: AccountEntity, amount: BigDecimal, callSave: Boolean){
+    private fun creditAccountBalance(userAccountDetails: AccountEntity, amount: BigDecimal, callSave: Boolean = true){
         userAccountDetails.balance.plus(amount)
-        logger.info("Account balance credited with deposit amount ${amount}")
+        logger.info("${TransactionLogMessages.CREDIT.message} ${userAccountDetails.currencyCode} ${amount}")
 
         if(callSave) {
             accountRepository.save(userAccountDetails)
         }
     }
 
-    private fun debitAccountBalance(userAccountDetails: AccountEntity, amount: BigDecimal, callSave: Boolean){
+    private fun debitAccountBalance(userAccountDetails: AccountEntity, amount: BigDecimal, callSave: Boolean = true){
         userAccountDetails.balance.minus(amount)
-        logger.info("Account balance debited with transfer amount ${amount}")
+        logger.info("${TransactionLogMessages.DEBIT.message} ${userAccountDetails.currencyCode} ${amount}")
 
         if(callSave) {
             accountRepository.save(userAccountDetails)
         }
-
     }
 
+    private fun createTransaction(accountId: Long, amount: BigDecimal, currencyCode: String,
+                                  transactionDescription: String, logMessage: String, callSave: Boolean = true): TransactionEntity {
+
+        val transactionEntity = TransactionEntity(
+                accountId = accountId,
+                amount = amount,
+                currencyCode = currencyCode,
+                dateTime = LocalDateTime.now(),
+                description = transactionDescription
+        )
+        logger.info(logMessage)
+
+        if(callSave) {
+            transactionRepository.save(transactionEntity)
+        }
+
+        return transactionEntity
+    }
 }

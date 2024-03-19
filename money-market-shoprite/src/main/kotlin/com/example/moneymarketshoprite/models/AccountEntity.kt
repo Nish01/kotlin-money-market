@@ -12,7 +12,7 @@ data class AccountEntity(
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
         @Column(name = "id", nullable = false, insertable = false, updatable = false)
-        var id: Long?,
+        var id: Long,
         @Column(name = "account_number", nullable = false)
         var accountNumber: Long,
         @Column(name = "currency_code", nullable = false)
