@@ -9,6 +9,7 @@ import com.example.moneymarketshoprite.models.TransactionEntity
 import com.example.moneymarketshoprite.models.TransactionReportResponse
 import com.example.moneymarketshoprite.models.TransferCommand
 import com.example.moneymarketshoprite.repositories.TransactionRepository
+import jakarta.transaction.Transactional
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
@@ -20,6 +21,8 @@ import java.time.LocalDateTime
 class AccountService(@Autowired private val accountRepository: AccountRepository, private val transactionRepository: TransactionRepository) : Account {
 
     private val logger = LoggerFactory.getLogger(AccountService::class.java)
+
+    @Transactional
     override fun handleDeposit(customerDepositCommand: DepositCommand, accountId: Long){
         var accountDetails = accountRepository.findById(accountId).orElse(null)
         val isAccountCurrencyValid = validateAccountCurrency(accountDetails, customerDepositCommand.currency)
@@ -40,37 +43,49 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
         transactionRepository.save(transactionEntity)
     }
 
+    @Transactional
     override fun handleTransfer(customerTransferCommand: TransferCommand, accountId: Long){
-
         var userAccountDetails = accountRepository.findById(accountId).orElse(null)
-
         var depositAccountDetails = accountRepository.findByAccountNumber(customerTransferCommand.destinationAccountNumber)
 
-        //Validate transfer from account, check if account is in customerTransferCommand.currency otherwise convert amount
-        //Likewise check if destination account is in customerTransferCommand.currency otherwise convert amount
+        //Validate transfer from account, check if account is in customerTransferCommand.currency otherwise need to convert amount
+        //Likewise check if destination account is in customerTransferCommand.currency otherwise need to convert amount
         val isAccountCurrencyValid = validateAccountCurrency(userAccountDetails, customerTransferCommand.currency)
         val isDepositAccountCurrencyValid = validateAccountCurrency(depositAccountDetails, customerTransferCommand.currency)
 
-        //Check if first account balance has sufficient funds before being allowed to transfer
+        if(userAccountDetails.balance <  customerTransferCommand.transferAmount){
+            //Throw error - insufficient balance to transfer - return
+        }
 
         //Do transfer, add debit transaction record and add credit transaction record
         //Handle in transaction
-
-//        accountDetails.balance.plus(customerDepositCommand.depositAmount)
-//        logger.info("Account balance credited with deposit amount ${customerDepositCommand.depositAmount}")
-//        accountRepository.save(accountDetails)
-//
-//        val transactionEntity = TransactionEntity(
-//                accountId = accountId,
-//                amount = customerDepositCommand.depositAmount,
-//                currencyCode = customerDepositCommand.currency,
-//                dateTime = LocalDateTime.now(),
-//                description = TransactionDescription.DEPOSIT.description
-//        )
-//        logger.info("Deposit transaction with deposit amount ${customerDepositCommand.depositAmount}")
-//        transactionRepository.save(transactionEntity)
+        userAccountDetails.balance.minus(customerTransferCommand.transferAmount)
+        logger.info("Account balance debited with transfer amount ${customerTransferCommand.transferAmount}")
+        accountRepository.save(userAccountDetails)
+        depositAccountDetails.balance.plus(customerTransferCommand.transferAmount)
+        logger.info("Transfer account balance credited with transfer amount ${customerTransferCommand.transferAmount}")
+        accountRepository.save(depositAccountDetails)
 
 
+        val transferFromTransactionEntity = TransactionEntity(
+                accountId = accountId,
+                amount = -customerTransferCommand.transferAmount,
+                currencyCode = customerTransferCommand.currency,
+                dateTime = LocalDateTime.now(),
+                description = TransactionDescription.TRANSFER.description
+        )
+        logger.info("Transfer transaction from account, with transfer amount ${customerTransferCommand.transferAmount}")
+        transactionRepository.save(transferFromTransactionEntity)
+
+        val transferToTransactionEntity = TransactionEntity(
+                accountId = depositAccountDetails.id,
+                amount = customerTransferCommand.transferAmount,
+                currencyCode = customerTransferCommand.currency,
+                dateTime = LocalDateTime.now(),
+                description = TransactionDescription.TRANSFER.description
+        )
+        logger.info("Transfer transaction to account, with transfer amount ${customerTransferCommand.transferAmount}")
+        transactionRepository.save(transferToTransactionEntity)
     }
 
     override suspend fun handleGenerateTransactionReport(accountId: Long) : List<TransactionReportResponse> {

@@ -1,8 +1,8 @@
 package com.example.moneymarketshoprite.repositories
 
 import com.example.moneymarketshoprite.models.AccountEntity
-import org.springframework.data.repository.CrudRepository
+import org.springframework.data.jpa.repository.JpaRepository
 
-interface AccountRepository : CrudRepository<AccountEntity, Long>{
+interface AccountRepository : JpaRepository<AccountEntity, Long>{
     fun findByAccountNumber(accountNumber: Long): AccountEntity
 }
