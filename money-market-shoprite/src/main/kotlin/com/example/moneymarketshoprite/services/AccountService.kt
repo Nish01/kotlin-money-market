@@ -15,6 +15,7 @@ import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @Service
@@ -28,9 +29,7 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
         val isAccountCurrencyValid = validateAccountCurrency(accountDetails, customerDepositCommand.currency)
 
         //Handle in transaction
-        accountDetails.balance.plus(customerDepositCommand.depositAmount)
-        logger.info("Account balance credited with deposit amount ${customerDepositCommand.depositAmount}")
-        accountRepository.save(accountDetails)
+        creditAccountBalance(accountDetails, customerDepositCommand.depositAmount, true)
 
         val transactionEntity = TransactionEntity(
                 accountId = accountId,
@@ -59,14 +58,11 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
 
         //Do transfer, add debit transaction record and add credit transaction record
         //Handle in transaction
-        userAccountDetails.balance.minus(customerTransferCommand.transferAmount)
-        logger.info("Account balance debited with transfer amount ${customerTransferCommand.transferAmount}")
-        accountRepository.save(userAccountDetails)
-        depositAccountDetails.balance.plus(customerTransferCommand.transferAmount)
-        logger.info("Transfer account balance credited with transfer amount ${customerTransferCommand.transferAmount}")
-        accountRepository.save(depositAccountDetails)
+        debitAccountBalance(userAccountDetails, customerTransferCommand.transferAmount, false)
+        creditAccountBalance(depositAccountDetails, customerTransferCommand.transferAmount, false)
 
-
+        accountRepository.saveAll(listOf(userAccountDetails, depositAccountDetails))
+        
         val transferFromTransactionEntity = TransactionEntity(
                 accountId = accountId,
                 amount = -customerTransferCommand.transferAmount,
@@ -85,7 +81,7 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
                 description = TransactionDescription.TRANSFER.description
         )
         logger.info("Transfer transaction to account, with transfer amount ${customerTransferCommand.transferAmount}")
-        transactionRepository.save(transferToTransactionEntity)
+        transactionRepository.saveAll(listOf(transferFromTransactionEntity, transferToTransactionEntity))
     }
 
     override suspend fun handleGenerateTransactionReport(accountId: Long) : List<TransactionReportResponse> {
@@ -112,13 +108,32 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
         }
     }
 
-    fun validateAccountCurrency(userAccountDetails: AccountEntity, currencyCodeToCheck: String) : Boolean{
+    private fun validateAccountCurrency(userAccountDetails: AccountEntity, currencyCodeToCheck: String) : Boolean{
 
         //Validate account, check account's currency
         //check if account is in customerDepositCommand.currency otherwise need to convert amount
         //Conversion implementation in a separate service, Conversion rates, this also implies multiple accounts - perhaps out of scope.
         //logger.info("Conversion from currency ZAR to USD required")
         return true
+    }
+
+    private fun creditAccountBalance(userAccountDetails: AccountEntity, amount: BigDecimal, callSave: Boolean){
+        userAccountDetails.balance.plus(amount)
+        logger.info("Account balance credited with deposit amount ${amount}")
+
+        if(callSave) {
+            accountRepository.save(userAccountDetails)
+        }
+    }
+
+    private fun debitAccountBalance(userAccountDetails: AccountEntity, amount: BigDecimal, callSave: Boolean){
+        userAccountDetails.balance.minus(amount)
+        logger.info("Account balance debited with transfer amount ${amount}")
+
+        if(callSave) {
+            accountRepository.save(userAccountDetails)
+        }
+
     }
 
 }
