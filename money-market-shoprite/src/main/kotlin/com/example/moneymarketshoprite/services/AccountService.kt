@@ -1,11 +1,11 @@
 package com.example.moneymarketshoprite.services
 
-import com.example.moneymarketshoprite.abstractions.Account
-import com.example.moneymarketshoprite.abstractions.AccountRepository
-import com.example.moneymarketshoprite.controllers.AccountController
+import com.example.moneymarketshoprite.services.abstractions.Account
+import com.example.moneymarketshoprite.repositories.AccountRepository
 import com.example.moneymarketshoprite.models.DepositCommand
 import com.example.moneymarketshoprite.models.TransactionReportResponse
 import com.example.moneymarketshoprite.models.TransferCommand
+import com.example.moneymarketshoprite.repositories.TransactionRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.slf4j.LoggerFactory
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
 @Service
-class AccountService(@Autowired private val accountRepository: AccountRepository) : Account {
+class AccountService(@Autowired private val accountRepository: AccountRepository, private val transactionRepository: TransactionRepository) : Account {
 
     private val logger = LoggerFactory.getLogger(AccountService::class.java)
 

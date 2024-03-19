@@ -1,4 +1,4 @@
-package com.example.moneymarketshoprite.abstractions
+package com.example.moneymarketshoprite.services.abstractions
 
 import com.example.moneymarketshoprite.models.DepositCommand
 import com.example.moneymarketshoprite.models.TransactionReportResponse

@@ -1,4 +1,4 @@
-package com.example.moneymarketshoprite.abstractions
+package com.example.moneymarketshoprite.repositories
 
 import com.example.moneymarketshoprite.models.AccountEntity
 import org.springframework.data.repository.CrudRepository
