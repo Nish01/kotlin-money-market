@@ -17,7 +17,7 @@ import java.util.*
 @RestController
 class AccountController(@Autowired val service: AccountService) {
 
-    @PutMapping()
+    @PutMapping("/deposit")
     fun deposit(@RequestBody customerDepositCommand: DepositCommand): ResponseEntity<Unit> {
         //Check user validation - can deposit
         //Switch to Mediator pattern
@@ -26,7 +26,7 @@ class AccountController(@Autowired val service: AccountService) {
         return ResponseEntity.ok().build()
     }
 
-    @PutMapping()
+    @PutMapping("/transfer")
     fun transfer(@RequestBody customerTransferCommand: TransferCommand): ResponseEntity<Unit> {
         //Check user validation - can transfer
 

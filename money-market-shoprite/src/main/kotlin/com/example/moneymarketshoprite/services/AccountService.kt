@@ -16,7 +16,7 @@ import java.time.LocalDateTime
 @Service
 class AccountService(@Autowired private val accountRepository: AccountRepository) : Account {
 
-    private val logger = LoggerFactory.getLogger(AccountController::class.java)
+    private val logger = LoggerFactory.getLogger(AccountService::class.java)
 
     override fun handleDeposit(customerDepositCommand: DepositCommand){
         //Get user token that will have already been authorised and exchanged, hard coded here
