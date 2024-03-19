@@ -8,6 +8,7 @@ import com.example.moneymarketshoprite.repositories.AccountRepository
 import com.example.moneymarketshoprite.models.DepositCommand
 import com.example.moneymarketshoprite.models.TransactionEntity
 import com.example.moneymarketshoprite.models.TransactionReportResponse
+import com.example.moneymarketshoprite.models.TransactionResponse
 import com.example.moneymarketshoprite.models.TransferCommand
 import com.example.moneymarketshoprite.repositories.TransactionRepository
 import jakarta.transaction.Transactional
@@ -69,26 +70,27 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
         transactionRepository.saveAll(listOf(transferFromTransactionEntity, transferToTransactionEntity))
     }
 
-    override suspend fun handleGenerateTransactionReport(accountId: Long) : List<TransactionReportResponse> {
-
-
-    //Get list of transactions for user account. Default number of transactions, with Optional parameters: x number of transactions or min date for scalability
-
+    override suspend fun handleGenerateTransactionReport(accountId: Long) : TransactionReportResponse {
+        // Default number of transactions, with Optional parameters: x number of transactions or min date for optimisation and extensibility
 
         return withContext(Dispatchers.IO) {
             // Perform long-running task to generate transaction report
 
-            val accountId = 5L
             logger.info("Transaction report initiated for account: ${accountId}")
+            var userAccountDetails = accountRepository.findById(accountId).orElse(null)
+            var transactions = transactionRepository.findAllByAccountId(accountId) //Add filter to limit records
 
-            var accountWithTransactions = accountRepository.findById(accountId).orElse(null) //need to add filter to limit records
+            val transactionsResponse = ArrayList<TransactionResponse>()
+            for (transaction in transactions) {
+                var transactionResponse = mapToTransactionReportResponse(transaction)
+                transactionsResponse.add(transactionResponse)
+            }
 
-            //Implement a Domain Method to map account Transactions to Transaction Report Response object to return to controller - return object hardcoded here
             logger.info("Transaction report generated for account: ${accountId}")
-            listOf(
-                    TransactionReportResponse(LocalDateTime.of(2024, 2, 1, 10, 1), 50.00, "ZAR", 150.00),
-                    TransactionReportResponse(LocalDateTime.of(2024, 2, 1, 10, 20), -50.00, "ZAR", 100.00),
-                    TransactionReportResponse(LocalDateTime.of(2024, 2, 1, 10, 38), 200.00, "ZAR", 200.00),
+            TransactionReportResponse(
+                    transactionsResponse = transactionsResponse,
+                    openingBalance = BigDecimal(0),
+                    closingBalance = userAccountDetails.balance
             )
         }
     }
@@ -136,5 +138,13 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
         }
 
         return transactionEntity
+    }
+
+   private fun mapToTransactionReportResponse(transactionEntity: TransactionEntity): TransactionResponse {
+        return TransactionResponse(
+                transactionDateTime= transactionEntity.dateTime,
+                amount = transactionEntity.amount,
+                currency = transactionEntity.currencyCode,
+        )
     }
 }

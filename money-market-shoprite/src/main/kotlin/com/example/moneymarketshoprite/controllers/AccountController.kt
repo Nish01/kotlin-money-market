@@ -46,7 +46,7 @@ class AccountController(@Autowired val service: AccountService) {
     }
 
     @GetMapping("/transactions")
-    suspend fun generateTransactionReport(): ResponseEntity<List<TransactionReportResponse>> {
+    suspend fun generateTransactionReport(): ResponseEntity<TransactionReportResponse> {
         //Check user validation - can generate transaction report
 
         //Get user token that will have already been authorised and exchanged, hard coded here

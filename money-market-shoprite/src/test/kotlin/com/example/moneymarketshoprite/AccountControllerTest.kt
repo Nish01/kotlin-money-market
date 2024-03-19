@@ -3,10 +3,13 @@ package com.example.moneymarketshoprite
 import com.example.moneymarketshoprite.controllers.AccountController
 import com.example.moneymarketshoprite.models.DepositCommand
 import com.example.moneymarketshoprite.models.TransactionReportResponse
+import com.example.moneymarketshoprite.models.TransactionResponse
 import com.example.moneymarketshoprite.services.AccountService
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.Mockito.doNothing
 import org.mockito.Mockito.doReturn
@@ -21,6 +24,10 @@ class AccountControllerTest {
 
     @Mock
     lateinit var service: AccountService //Mocked service dependency
+
+    @InjectMocks
+    lateinit var controller: AccountController
+
 
     @Test
     fun `deposit method should return OK`() {
@@ -48,29 +55,33 @@ class AccountControllerTest {
     }
 
     @Test
-    suspend fun `generate transaction report returns list of transactions`() {
-        val accountId = 55L
-        //Mock service behavior
-        doReturn(getTransactionList()).`when`(service).handleGenerateTransactionReport(accountId)
-        val controller = AccountController(service)
+    suspend fun `generateTransactionReport should return OK when service returns TransactionReportResponse data`() {
+        //Mock data
+        val accountId = 123L
+        val transactionReportResponse = getTransactionReportResponse()
 
-        // Call the deposit method and capture the response
+        //Mock service behavior
+        runBlocking {
+            doReturn(getTransactionReportResponse()).`when`(service).handleGenerateTransactionReport(accountId)
+        }
+
+        //Call the function
         val response = controller.generateTransactionReport()
 
-        //Assert that the response status is OK
+        // Verify response
         assertEquals(HttpStatus.OK, response.statusCode)
-        //Assert that the response body is a non-empty list service method is called once
-        assertThat(response.body).isNotEmpty()
-        assertEquals(getTransactionList().size, response.body?.size)
+        assertEquals(transactionReportResponse, response.body)
         verify(service, times(1)).handleGenerateTransactionReport(accountId);
     }
 
-    fun getTransactionList(): List<TransactionReportResponse> {
-       return listOf(
-                TransactionReportResponse(LocalDateTime.of(2024, 2, 1, 10, 1), 50.00, "ZAR", 150.00),
-                TransactionReportResponse(LocalDateTime.of(2024, 2, 1, 10, 20), -50.00, "ZAR", 100.00),
-                TransactionReportResponse(LocalDateTime.of(2024, 2, 1, 10, 38), 200.00, "ZAR", 200.00),
-        )
+    fun getTransactionReportResponse(): TransactionReportResponse {
+       return TransactionReportResponse(
+               transactionsResponse = listOf(
+                       TransactionResponse(LocalDateTime.of(2024, 2, 1, 10, 1), BigDecimal(50.00), "ZAR"),
+               ),
+               openingBalance = BigDecimal(0),
+               closingBalance = BigDecimal(20000)
+       )
     }
 
 }
