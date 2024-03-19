@@ -1,14 +1,13 @@
-# Use the official Node.js image from the Docker Hub
 FROM openjdk:20
 
 # Set the working directory in the container
 WORKDIR /src/app
 
-# Copy package.json and package-lock.json to the container
+# Copy jar file to the container
 COPY build/libs/money-market-shoprite-0.0.1-SNAPSHOT.jar /src/app/money-market-shoprite-0.0.1-SNAPSHOT.jar
 
-# Expose the port your application will run on
+# Expose the port the application will run on
 EXPOSE 5000
 
-# Define the command to run your application
+# Define the command to run the application
 CMD ["java", "-jar", "money-market-shoprite-0.0.1-SNAPSHOT.jar.jar"]
