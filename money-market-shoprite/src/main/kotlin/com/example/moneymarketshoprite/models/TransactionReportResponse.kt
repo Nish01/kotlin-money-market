@@ -1,5 +1,9 @@
 package com.example.moneymarketshoprite.models
 
+import java.math.BigDecimal
 import java.time.LocalDateTime
 
-class TransactionReportResponse(var transactionDateTime: LocalDateTime,var amount: Double, var currency: String, var balance: Double)
+class TransactionReportResponse(var transactionsResponse: List<TransactionResponse>,
+                                var openingBalance: BigDecimal, var closingBalance: BigDecimal){
+}
+
