@@ -20,9 +20,6 @@ class AccountController(@Autowired val service: AccountService) {
     fun deposit(@RequestBody customerDepositCommand: DepositCommand): ResponseEntity<Unit> {
         //Check user validation - can deposit
 
-        //Get user token that will have already been authorised and exchanged, hard coded here
-        //Need to think more on using the token in Db to connect to the user
-        val userToken = "xxxx"
         //Get user account details using userToken
         val accountId = 555L
 
@@ -35,9 +32,6 @@ class AccountController(@Autowired val service: AccountService) {
     fun transfer(@RequestBody customerTransferCommand: TransferCommand): ResponseEntity<Unit> {
         //Check user validation - can transfer
 
-        //Get user token that will have already been authorised and exchanged, hard coded here
-        //Need to think more on using the token in Db to connect to the user
-        val userToken = "xxxx"
         //get user account details using userToken
         val accountId = 555L
 
@@ -49,9 +43,6 @@ class AccountController(@Autowired val service: AccountService) {
     suspend fun generateTransactionReport(): ResponseEntity<TransactionReportResponse> {
         //Check user validation - can generate transaction report
 
-        //Get user token that will have already been authorised and exchanged, hard coded here
-        //Need to think more on using the token in Db to connect to the user
-        val userToken = "xxxx"
         val accountId = 555L
 
         var transactionList = service.handleGenerateTransactionReport(accountId)
