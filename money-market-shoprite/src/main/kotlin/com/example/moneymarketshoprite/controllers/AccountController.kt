@@ -45,7 +45,7 @@ class AccountController(@Autowired val service: AccountService) {
 
         val accountId = 555L
 
-        var transactionList = service.handleGenerateTransactionReport(accountId)
+        val transactionList = service.handleGenerateTransactionReport(accountId)
 
         return if (transactionList != null) ResponseEntity.ok(transactionList)
         else ResponseEntity(HttpStatus.NOT_FOUND)
