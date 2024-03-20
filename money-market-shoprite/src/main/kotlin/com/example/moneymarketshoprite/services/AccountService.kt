@@ -63,7 +63,7 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
                 customerTransferCommand.currency, TransactionDescription.TRANSFER.description,
                 "${TransactionLogMessages.TRANSFERFROM.message} ${customerTransferCommand.currency} ${customerTransferCommand.transferAmount}", false)
 
-        val transferToTransactionEntity = createTransaction(depositAccountDetails.id, customerTransferCommand.transferAmount,
+        val transferToTransactionEntity = createTransaction(depositAccountDetails.id!!, customerTransferCommand.transferAmount,
                 customerTransferCommand.currency, TransactionDescription.TRANSFER.description,
                 "${TransactionLogMessages.TRANSFERTO.message} ${customerTransferCommand.currency} ${customerTransferCommand.transferAmount}", false)
 
