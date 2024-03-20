@@ -15,7 +15,7 @@ class AuthController() {
         //Authenticate user
 
         //Assume user is authenticated and get user details
-        val userId = 123L
+        val userId = 555L
         val roles = listOf("ROLE_DEPOSIT")
 
         //Generate JWT token

@@ -21,7 +21,8 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 
 @Service
-class AccountService(@Autowired private val accountRepository: AccountRepository, @Autowired private val transactionRepository: TransactionRepository) : Account {
+class AccountService(@Autowired private val accountRepository: AccountRepository,
+                     @Autowired private val transactionRepository: TransactionRepository) : Account {
 
     private val logger = LoggerFactory.getLogger(AccountService::class.java)
 
@@ -49,10 +50,10 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
         val isDepositAccountCurrencyValid = validateAccountCurrency(depositAccountDetails, customerTransferCommand.currency)
 
         if(userAccountDetails.balance <  customerTransferCommand.transferAmount){
-            //Throw error - insufficient balance to transfer - return
+            //Return error - insufficient balance to transfer
         }
 
-        //Do transfer, add debit transaction record and add credit transaction record
+        //Do transfer, update balances, add debit transaction record and add credit transaction record
         debitAccountBalance(userAccountDetails, customerTransferCommand.transferAmount, false)
         creditAccountBalance(depositAccountDetails, customerTransferCommand.transferAmount, false)
 
@@ -71,10 +72,10 @@ class AccountService(@Autowired private val accountRepository: AccountRepository
     }
 
     override suspend fun handleGenerateTransactionReport(accountId: Long) : TransactionReportResponse {
-        // Default number of transactions, with Optional parameters: x number of transactions or min date for optimisation and extensibility
+        //Default number of transactions, with Optional parameters: x number of transactions or min date for optimisation and extensibility
 
         return withContext(Dispatchers.IO) {
-            // Perform long-running task to generate transaction report
+            //Perform long-running task to generate transaction report
 
             logger.info("Transaction report initiated for account: ${accountId}")
             var userAccountDetails = accountRepository.findById(accountId).orElse(null)

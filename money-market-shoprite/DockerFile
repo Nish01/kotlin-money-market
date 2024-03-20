@@ -7,7 +7,7 @@ WORKDIR /src/app
 COPY build/libs/money-market-shoprite-0.0.1-SNAPSHOT.jar /src/app/money-market-shoprite-0.0.1-SNAPSHOT.jar
 
 # Expose the port the application will run on
-EXPOSE 5000
+EXPOSE 8080
 
 # Define the command to run the application
 CMD ["java", "-jar", "money-market-shoprite-0.0.1-SNAPSHOT.jar.jar"]
