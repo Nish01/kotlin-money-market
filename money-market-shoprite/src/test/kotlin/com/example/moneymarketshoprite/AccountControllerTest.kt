@@ -22,11 +22,9 @@ import java.time.LocalDateTime
 class AccountControllerTest {
 
     @Mock
-    lateinit var service: AccountService //Mocked service dependency
-
+    lateinit var service: AccountService
     @InjectMocks
     lateinit var controller: AccountController
-
 
     @Test
     fun `deposit method should return OK`() {
@@ -67,7 +65,7 @@ class AccountControllerTest {
         //Call the function
         val response = controller.generateTransactionReport()
 
-        // Verify response
+        //Verify response
         assertEquals(HttpStatus.OK, response.statusCode)
         assertEquals(transactionReportResponse, response.body)
         verify(service, times(1)).handleGenerateTransactionReport(accountId);

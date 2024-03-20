@@ -21,14 +21,11 @@ class AccountServiceTest {
 
     @Mock
     lateinit var fakeAccountRepository: AccountRepository
-
     @Mock
     lateinit var fakeTransactionRepository: TransactionRepository
 
-
     @Autowired
     lateinit var accountRepository: AccountRepository
-
     @Autowired
     lateinit var transactionRepository: TransactionRepository
 
